@@ -302,7 +302,7 @@
                         },
                         "protectedSettings": {
                             "configurationArguments": {
-                                "adminCreds": {
+                                "domainAdminCreds": {
                                     "userName": "[variables('domainadminUsername')]",
                                     "password": "[parameters('adminPassword')]"
                                 },
