@@ -312,7 +312,7 @@
             "location": "[variables('AZRegion')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Compute/virtualMachines', variables('AD1VMName'))]",
-                "LABDC/newaddsforest"
+                "LabDC/newaddsforest"
             ],
             "properties": {
                 "publisher": "Microsoft.Compute",
