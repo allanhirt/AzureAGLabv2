@@ -295,11 +295,11 @@
                 "autoUpgradeMinorVersion":true,
                 "settings": {
                     "fileUris": [
-                        "https://sqlhauclassstuff.blob.core.windows.net/sqlhaulabstuff/CreateAD.ps1"
+                        "https://sqlhauclassstuff.blob.core.windows.net/sqlhaulabstuff/ConfigureNewForest.ps1"
                     ]
                 },
                 "protectedSettings": {
-                    "commandToExecute": "powershell.exe -ExecutionPolicy Unrestricted -File CreateAD.ps1",
+                    "commandToExecute": "powershell.exe -ExecutionPolicy Unrestricted -File ConfigureNewForest.ps1",
                     "storageAccountName": "sqlhauclassstuff",
                     "storageAccountKey": "FmKLikif8/YdpbZyyb/O+o/P1hRNBB769fmEG4V0zMR4hxNuXcRO999d6Z0TqeuuaLBBbol3AGipEE0gdxlT6Q=="
                 }
