@@ -265,7 +265,7 @@
                 },
                 "osProfile": {
                     "computerName": "[variables('AD1VMName')]",
-                    "adminUsername": "[parameters('domainadminUsername')]",
+                    "adminUsername": "[variables('domainadminUsername')]",
                     "adminPassword": "[parameters('adminPassword')]",
                     "windowsConfiguration": {
                         "enableAutomaticUpdates": false,
@@ -282,9 +282,9 @@
         },
         {
             "type": "Microsoft.Compute/virtualMachines/extensions",
-            "name": "CreateADDC",
+            "name": "CreateADDC/executepsscript",
             "apiVersion": "2015-05-01-preview",
-            "location": "[parameters('location')]",
+            "location": "[variables('AZRegion')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Compute/virtualMachines', variables('AD1VMName'))]"
             ],
@@ -357,7 +357,7 @@
                 },
                 "osProfile": {
                     "computerName": "[variables('N1VMName')]",
-                    "adminUsername": "[parameters('localadminUsername')]",
+                    "adminUsername": "[variables('localadminUsername')]",
                     "adminPassword": "[parameters('adminPassword')]",
                     "windowsConfiguration": {
                         "enableAutomaticUpdates": true,
@@ -392,7 +392,7 @@
                     "SQLConnectivityUpdateSettings": {
                         "ConnectivityType": "PRIVATE",
                         "Port": "1433",
-                        "SQLAuthUpdateUserName": "[parameters('localadminUsername')]",
+                        "SQLAuthUpdateUserName": "[variables('localadminUsername')]",
                         "SQLAuthUpdatePassword": "[parameters('adminPassword')]"
                     },
                     "SQLWorkloadTypeUpdateSettings": {
@@ -464,7 +464,7 @@
                 },
                 "osProfile": {
                     "computerName": "[variables('N2VMName')]",
-                    "adminUsername": "[parameters('localadminUsername')]",
+                    "adminUsername": "[variables('localadminUsername')]",
                     "adminPassword": "[parameters('adminPassword')]",
                     "windowsConfiguration": {
                         "enableAutomaticUpdates": true,
@@ -499,7 +499,7 @@
                     "SQLConnectivityUpdateSettings": {
                         "ConnectivityType": "PRIVATE",
                         "Port": "1433",
-                        "SQLAuthUpdateUserName": "[parameters('localadminUsername')]",
+                        "SQLAuthUpdateUserName": "[variables('localadminUsername')]",
                         "SQLAuthUpdatePassword": "[parameters('adminPassword')]"
                     },
                     "SQLWorkloadTypeUpdateSettings": {
@@ -518,12 +518,38 @@
             "dependsOn": [
                 "[resourceId('Microsoft.Compute/virtualMachines', variables('N2VMName'))]"
             ]            
-        }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "name": "JoinN1toADDS/executepsscript",
+            "apiVersion": "2015-05-01-preview",
+            "location": "[variables('AZRegion')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', variables('N1VMName'))]"
+            ],
+            "properties": {
+                "publisher": "Microsoft.Compute",
+                "type": "CustomScriptExtension",
+                "typeHandlerVersion": "1.7",
+                "autoUpgradeMinorVersion":true,
+                "settings": {
+                    "fileUris": [
+                        "https://sqlhauclassstuff.blob.core.windows.net/sqlhaulabstuff/JoinAD.ps1"
+                    ]
+                },
+                "protectedSettings": {
+                    "commandToExecute": "powershell.exe -ExecutionPolicy Unrestricted -File JoinAD.ps1",
+                    "storageAccountName": "sqlhauclassstuff",
+                    "storageAccountKey": "FmKLikif8/YdpbZyyb/O+o/P1hRNBB769fmEG4V0zMR4hxNuXcRO999d6Z0TqeuuaLBBbol3AGipEE0gdxlT6Q=="
+                }
+            }
+        },
+
     ],
     "outputs": {
         "adminUsername": {
             "type": "string",
-            "value": "[parameters('localadminUsername')]"
+            "value": "[variables('localadminUsername')]"
         }
     }
 }
