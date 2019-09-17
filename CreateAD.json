@@ -282,7 +282,7 @@
         },
         {
             "type": "Microsoft.Compute/virtualMachines/extensions",
-            "name": "LabDC/createadds",
+            "name": "LabDC/newaddsforest",
             "apiVersion": "2019-03-01",
             "location": "[variables('AZRegion')]",
             "dependsOn": [
