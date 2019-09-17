@@ -283,7 +283,7 @@
                 {
                     "name": "CreateNewForest",
                     "type": "extensions",
-                    "apiVersion": "2018-06-30",
+                    "apiVersion": "2019-07-01",
                     "location": "[variables('AZRegion')]",
                     "dependsOn": [
                             "[resourceId('Microsoft.Compute/virtualMachines', variables('AD1VMName'))]"
