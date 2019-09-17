@@ -282,7 +282,7 @@
         },
         {
             "type": "Microsoft.Compute/virtualMachines/extensions",
-            "name": "CreateADDC/executepsscript",
+            "name": "LabDC/executepsscript",
             "apiVersion": "2019-03-01",
             "location": "[variables('AZRegion')]",
             "dependsOn": [
