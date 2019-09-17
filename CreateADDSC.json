@@ -305,9 +305,7 @@
                                 "domainAdminCreds": {
                                     "userName": "[variables('domainadminUsername')]",
                                     "password": "[parameters('adminPassword')]"
-                                },
-                            "storageAccountName": "sqlhauclassstuff",
-                            "storageAccountKey": "FmKLikif8/YdpbZyyb/O+o/P1hRNBB769fmEG4V0zMR4hxNuXcRO999d6Z0TqeuuaLBBbol3AGipEE0gdxlT6Q=="
+                                }
                             }
                         }
                     }
