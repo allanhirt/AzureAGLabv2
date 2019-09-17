@@ -282,7 +282,7 @@
         },
         {
             "type": "Microsoft.Compute/virtualMachines/extensions",
-            "name": "LabDC/executepsscript",
+            "name": "LabDC/createadds",
             "apiVersion": "2019-03-01",
             "location": "[variables('AZRegion')]",
             "dependsOn": [
@@ -300,6 +300,32 @@
                 },
                 "protectedSettings": {
                     "commandToExecute": "powershell.exe -ExecutionPolicy Unrestricted -File CreateAD.ps1",
+                    "storageAccountName": "sqlhauclassstuff",
+                    "storageAccountKey": "FmKLikif8/YdpbZyyb/O+o/P1hRNBB769fmEG4V0zMR4hxNuXcRO999d6Z0TqeuuaLBBbol3AGipEE0gdxlT6Q=="
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "name": "LabDC/createaddsobjects",
+            "apiVersion": "2019-03-01",
+            "location": "[variables('AZRegion')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', variables('AD1VMName'))]",
+                "LABDC/createadds"
+            ],
+            "properties": {
+                "publisher": "Microsoft.Compute",
+                "type": "CustomScriptExtension",
+                "typeHandlerVersion": "1.9",
+                "autoUpgradeMinorVersion":true,
+                "settings": {
+                    "fileUris": [
+                        "https://sqlhauclassstuff.blob.core.windows.net/sqlhaulabstuff/CreateADObjects.ps1"
+                    ]
+                },
+                "protectedSettings": {
+                    "commandToExecute": "powershell.exe -ExecutionPolicy Unrestricted -File CreateADObjects.ps1",
                     "storageAccountName": "sqlhauclassstuff",
                     "storageAccountKey": "FmKLikif8/YdpbZyyb/O+o/P1hRNBB769fmEG4V0zMR4hxNuXcRO999d6Z0TqeuuaLBBbol3AGipEE0gdxlT6Q=="
                 }
