@@ -374,7 +374,7 @@
             "zones": ["2"]
         },
         {
-            "name": "[variables('N1VMName')]",
+            "name": "ConfigureSQLServerOnN1",
             "type": "Microsoft.SqlVirtualMachine/SqlVirtualMachines",
             "apiVersion": "2017-03-01-preview",
             "location": "[variables('AZRegion')]",
@@ -481,7 +481,7 @@
                 "zones": ["3"]
         },
         {
-            "name": "[variables('N2VMName')]",
+            "name": "ConfigureSQLServerOnN2",
             "type": "Microsoft.SqlVirtualMachine/SqlVirtualMachines",
             "apiVersion": "2017-03-01-preview",
             "location": "[variables('AZRegion')]",
@@ -525,32 +525,7 @@
             "apiVersion": "2015-05-01-preview",
             "location": "[variables('AZRegion')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Compute/virtualMachines', variables('N1VMName'))]"
-            ],
-            "properties": {
-                "publisher": "Microsoft.Compute",
-                "type": "CustomScriptExtension",
-                "typeHandlerVersion": "1.7",
-                "autoUpgradeMinorVersion":true,
-                "settings": {
-                    "fileUris": [
-                        "https://sqlhauclassstuff.blob.core.windows.net/sqlhaulabstuff/JoinAD.ps1"
-                    ]
-                },
-                "protectedSettings": {
-                    "commandToExecute": "powershell.exe -ExecutionPolicy Unrestricted -File JoinAD.ps1",
-                    "storageAccountName": "sqlhauclassstuff",
-                    "storageAccountKey": "FmKLikif8/YdpbZyyb/O+o/P1hRNBB769fmEG4V0zMR4hxNuXcRO999d6Z0TqeuuaLBBbol3AGipEE0gdxlT6Q=="
-                }
-            }
-        },
-        {
-            "type": "Microsoft.Compute/virtualMachines/extensions",
-            "name": "JoinN2toADDS/executepsscript",
-            "apiVersion": "2015-05-01-preview",
-            "location": "[variables('AZRegion')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Compute/virtualMachines', variables('N2VMName'))]"
+                "ConfigureSQLServerOnN1"
             ],
             "properties": {
                 "publisher": "Microsoft.Compute",
