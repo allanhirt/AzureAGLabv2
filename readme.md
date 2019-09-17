@@ -9,7 +9,12 @@ All VMs
     <img src="http://azuredeploy.net/deploybutton.png"/>
 </a>
 
-Just AD
+Just AD - PS
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fallanhirt%2FAzureAGLabv2%2Fmaster%2FCreateAD.json" target="_blank">
+    <img src="http://azuredeploy.net/deploybutton.png"/>
+</a>
+
+Just AD - DSC
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fallanhirt%2FAzureAGLabv2%2Fmaster%2FCreateADDSC.json" target="_blank">
     <img src="http://azuredeploy.net/deploybutton.png"/>
 </a>
