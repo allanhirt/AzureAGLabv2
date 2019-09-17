@@ -297,7 +297,7 @@
                         "settings": {
                             "configuration": {
                                 "url": "https://sqlhauclassstuff.blob.core.windows.net/sqlhaulabstuff/CreateADForest.zip",
-                                "script": "CreateADForestv2.ps1",
+                                "script": "CreateADForestv3.ps1",
                                 "function": "LabDC"
                             },
                             "configurationArguments": {
