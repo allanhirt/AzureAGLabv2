@@ -29,11 +29,7 @@
         "N2VMName": "LabN2",
         "networkSecurityGroupName": "LabNSG",
         "NodeVMList": "concat(variables('N1VMName'), ',', variables('N1VMName'))",
-        "NodeListArray": "[split(variables('NodeVMList'),',')]",
-        "subnetName": "LabSubnet",
-        "subnetRef": "[concat(variables('vnetId'), '/subnets/', variables('subnetName'))]",
-        "virtualNetworkName": "Labnet",
-        "vnetId": "[resourceId(resourceGroup().name,'Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
+        "NodeListArray": "[split(variables('NodeVMList'),',')]"
     },
     "resources": [
         {
