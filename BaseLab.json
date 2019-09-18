@@ -20,7 +20,7 @@
         {
             "name": "[variables('virtualNetworkName')]",
             "type": "Microsoft.Network/virtualNetworks",
-            "apiVersion": "2018-08-01",
+            "apiVersion": "2019-04-01",
             "location": "[variables('AZRegion')]",
             "properties": {
                 "addressSpace": {
@@ -46,7 +46,7 @@
         {
             "name": "[variables('networkSecurityGroupName')]",
             "type": "Microsoft.Network/networkSecurityGroups",
-            "apiVersion": "2018-08-01",
+            "apiVersion": "2019-04-01",
             "location": "[variables('AZRegion')]",
             "properties": {
                 "securityRules": [
