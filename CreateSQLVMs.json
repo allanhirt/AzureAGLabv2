@@ -205,6 +205,7 @@
             "dependsOn": [
                 "[resourceId('Microsoft.Compute/virtualMachines', variables('N1VMName'))]",
                 "[resourceId('Microsoft.Compute/virtualMachines', variables('AD1VMName'))]"
+                "[resourceId('Microsoft.SqlVirtualMachine/SqlVirtualMachines', variables('N1VMName'))]",
             ],
             "properties": {
                 "publisher": "Microsoft.Powershell",
