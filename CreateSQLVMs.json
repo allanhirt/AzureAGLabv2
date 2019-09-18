@@ -489,46 +489,82 @@
                     }
                 }
             },
-                "zones": ["3"]
-        },
-        {
-            "name": "[variables('N2VMName')]",
-            "type": "Microsoft.SqlVirtualMachine/SqlVirtualMachines",
-            "apiVersion": "2017-03-01-preview",
-            "location": "[variables('AZRegion')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Compute/virtualMachines', variables('N2VMName'))]"
-            ],            
-            "properties": {
-                "virtualMachineResourceId": "[resourceId('Microsoft.Compute/virtualMachines', variables('N2VMName'))]",
-                "sqlManagement": "Full",
-                "SqlServerLicenseType": "PAYG",
-                "AutoPatchingSettings": {
-                    "Enable": false
-                },
-                "KeyVaultCredentialSettings": {
-                    "Enable": false
-                },
-                "ServerConfigurationsManagementSettings": {
-                    "SQLConnectivityUpdateSettings": {
-                        "ConnectivityType": "PRIVATE",
-                        "Port": "1433",
-                        "SQLAuthUpdateUserName": "[variables('localadminUsername')]",
-                        "SQLAuthUpdatePassword": "[parameters('adminPassword')]"
-                    },
-                    "SQLWorkloadTypeUpdateSettings": {
-                        "SQLWorkloadType": "GENERAL"
-                    },
-                    "SQLStorageUpdateSettings": {
-                        "DiskCount": "1",
-                        "DiskConfigurationType": "NEW",
-                        "StartingDeviceID": "2"
-                    },
-                    "AdditionalFeaturesServerConfigurations": {
-                        "IsRServicesEnabled": false
+                "zones": ["3"],
+            "resources": [
+                {
+                    "name": "ConfigureNode2",
+                    "type": "extensions",
+                    "apiVersion": "2019-07-01",
+                    "location": "[variables('AZRegion')]",
+                    "dependsOn": [
+                            "[resourceId('Microsoft.Compute/virtualMachines', variables('AD1VMName'))]",
+                            "[resourceId('Microsoft.Compute/virtualMachines', variables('N1VMName'))]"               
+                    ],
+                    "properties": {
+                        "publisher": "Microsoft.Powershell",
+                        "type": "DSC",
+                        "typeHandlerVersion": "2.78",
+                        "autoUpgradeMinorVersion": true,
+                        "settings": {
+                            "configuration": {
+                                "url": "https://sqlhauclassstuff.blob.core.windows.net/sqlhaulabstuff/ConfigureNodes_0918.zip",
+                                "script": "ConfigureNodes_0918.ps1",
+                                "function": "Node1ConfigWin"
+                            },
+                            "configurationArguments": {
+                                "FQDN": "[variables('domainName')]"
+                            }  
+                        },
+                        "protectedSettings": {
+                            "configurationArguments": {
+                                "domainAdminCreds": {
+                                    "userName": "[variables('domainadminUsername')]",
+                                    "password": "[parameters('adminPassword')]"
+                                }
+                            }
+                        }
                     }
+                },
+                {
+                    "name": "[variables('N2VMName')]",
+                    "type": "Microsoft.SqlVirtualMachine/SqlVirtualMachines",
+                    "apiVersion": "2017-03-01-preview",
+                    "location": "[variables('AZRegion')]",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Compute/virtualMachines', variables('N2VMName'))]"
+                    ],            
+                    "properties": {
+                        "virtualMachineResourceId": "[resourceId('Microsoft.Compute/virtualMachines', variables('N2VMName'))]",
+                        "sqlManagement": "Full",
+                        "SqlServerLicenseType": "PAYG",
+                        "AutoPatchingSettings": {
+                            "Enable": false
+                        },
+                        "KeyVaultCredentialSettings": {
+                            "Enable": false
+                        },
+                        "ServerConfigurationsManagementSettings": {
+                            "SQLConnectivityUpdateSettings": {
+                                "ConnectivityType": "PRIVATE",
+                                "Port": "1433",
+                                "SQLAuthUpdateUserName": "[variables('localadminUsername')]",
+                                "SQLAuthUpdatePassword": "[parameters('adminPassword')]"
+                            },
+                            "SQLWorkloadTypeUpdateSettings": {
+                                "SQLWorkloadType": "GENERAL"
+                            },
+                            "SQLStorageUpdateSettings": {
+                                "DiskCount": "1",
+                                "DiskConfigurationType": "NEW",
+                                "StartingDeviceID": "2"
+                            },
+                            "AdditionalFeaturesServerConfigurations": {
+                                "IsRServicesEnabled": false
+                            }
+                        }
+                    }    
                 }
-            }
+            ]
         }
     ],
     "outputs": {
