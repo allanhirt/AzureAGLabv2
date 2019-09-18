@@ -29,7 +29,12 @@ Broken Up
     <img src="http://azuredeploy.net/deploybutton.png"/>
 </a>
 
-Loop
+Two Part - Part 1
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fallanhirt%2FAzureAGLabv2%2Fmaster%2FCreateSQLVMsv2.json" target="_blank">
+    <img src="http://azuredeploy.net/deploybutton.png"/>
+</a>
+
+Two Part - Part 2
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fallanhirt%2FAzureAGLabv2%2Fmaster%2FConfigureNodes.json" target="_blank">
     <img src="http://azuredeploy.net/deploybutton.png"/>
 </a>

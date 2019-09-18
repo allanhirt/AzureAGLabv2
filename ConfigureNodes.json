@@ -1,0 +1,121 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "adminPassword": {
+            "type": "secureString"
+        }
+    },
+    "variables": {
+        "AD1VMName": "LabDC",
+        "AZRegion": "eastus2",
+        "dataDisks": [
+            {
+                    "lun": "0",
+                    "createOption": "empty",
+                    "caching": "ReadOnly",
+                    "writeAcceleratorEnabled": false,
+                    "id": null,
+                    "name": null,
+                    "storageAccountType": "[variables('dataStorageType')]",
+                    "diskSizeGB": "1023"
+            }
+        ],
+        "dataStorageType": "Premium_LRS",
+        "domainadminUsername": "sqlhaudomainadmin",
+        "domainName": "SQLHAU.AZURELAB",
+        "localadminUsername": "sqlhaulocaladmin",
+        "N1VMName": "LabN1",
+        "N2VMName": "LabN2",
+        "networkSecurityGroupName": "LabNSG",
+        "NodeVMList": "concat(variables('N1VMName'), ',', variables('N1VMName'))",
+        "NodeListArray": "[split(variables('NodeVMList'),',')]",
+        "subnetName": "LabSubnet",
+        "subnetRef": "[concat(variables('vnetId'), '/subnets/', variables('subnetName'))]",
+        "virtualNetworkName": "Labnet",
+        "vnetId": "[resourceId(resourceGroup().name,'Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
+    },
+    "resources": [
+        {
+            "name": "[trim(variables('NodeListArray')[copyIndex()])]",
+            "type": "Microsoft.SqlVirtualMachine/SqlVirtualMachines",
+            "apiVersion": "2017-03-01-preview",
+            "location": "[variables('AZRegion')]",
+            "copy": {
+                "name": "ConfigureSQLServerLoop",
+                "count": "[length(variables('NodeListArray'))]"
+            },
+            "properties": {
+                "virtualMachineResourceId": "[resourceId('Microsoft.Compute/virtualMachines', trim(variables('NodeListArray')[copyIndex()]))]",
+                "sqlManagement": "Full",
+                "SqlServerLicenseType": "PAYG",
+                "AutoPatchingSettings": {
+                    "Enable": false
+                },
+                "KeyVaultCredentialSettings": {
+                    "Enable": false
+                },
+                "ServerConfigurationsManagementSettings": {
+                    "SQLConnectivityUpdateSettings": {
+                        "ConnectivityType": "PRIVATE",
+                        "Port": "1433",
+                        "SQLAuthUpdateUserName": "[variables('localadminUsername')]",
+                        "SQLAuthUpdatePassword": "[parameters('adminPassword')]"
+                    },
+                    "SQLWorkloadTypeUpdateSettings": {
+                        "SQLWorkloadType": "GENERAL"
+                    },
+                    "SQLStorageUpdateSettings": {
+                        "DiskCount": "1",
+                        "DiskConfigurationType": "NEW",
+                        "StartingDeviceID": "2"
+                    },
+                    "AdditionalFeaturesServerConfigurations": {
+                        "IsRServicesEnabled": false
+                    }
+                }
+            }
+        },
+        {
+            "name": "ConfigureNode1",
+            "type": "extensions",
+            "apiVersion": "2019-07-01",
+            "location": "[variables('AZRegion')]",
+            "dependsOn": [
+                    "[resourceId('Microsoft.Compute/virtualMachines', variables('AD1VMName'))]",
+                    "[resourceId('Microsoft.Compute/virtualMachines', variables('N1VMName'))]",
+                    "ConfigureSQLServerLoop"
+                    ],
+            "properties": {
+                "publisher": "Microsoft.Powershell",
+                "type": "DSC",
+                "typeHandlerVersion": "2.78",
+                "autoUpgradeMinorVersion": true,
+                "settings": {
+                    "configuration": {
+                        "url": "https://sqlhauclassstuff.blob.core.windows.net/sqlhaulabstuff/ConfigureNodes_0918.zip",
+                        "script": "ConfigureNodes_0918.ps1",
+                        "function": "Node1ConfigWin"
+                    },
+                    "configurationArguments": {
+                        "FQDN": "[variables('domainName')]"
+                    }
+                },
+                "protectedSettings": {
+                    "configurationArguments": {
+                        "domainAdminCreds": {
+                            "userName": "[variables('domainadminUsername')]",
+                            "password": "[parameters('adminPassword')]"
+                        }
+                    }
+                }
+            }
+        }
+    ],
+    "outputs": {
+        "adminUsername": {
+            "type": "string",
+            "value": "[variables('localadminUsername')]"
+        }
+    }
+}        
