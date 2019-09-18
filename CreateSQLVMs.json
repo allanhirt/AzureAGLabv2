@@ -498,7 +498,8 @@
                     "location": "[variables('AZRegion')]",
                     "dependsOn": [
                             "[resourceId('Microsoft.Compute/virtualMachines', variables('AD1VMName'))]",
-                            "[resourceId('Microsoft.Compute/virtualMachines', variables('N1VMName'))]"               
+                            "[resourceId('Microsoft.Compute/virtualMachines', variables('N1VMName'))]",
+                            "[resourceId('Microsoft.Compute/virtualMachines', variables('N1VMName'))]"                     
                     ],
                     "properties": {
                         "publisher": "Microsoft.Powershell",
@@ -531,7 +532,9 @@
                     "apiVersion": "2017-03-01-preview",
                     "location": "[variables('AZRegion')]",
                     "dependsOn": [
-                        "[resourceId('Microsoft.Compute/virtualMachines', variables('N2VMName'))]"
+                        "[resourceId('Microsoft.Compute/virtualMachines', variables('N2VMName'))]",
+                        "[resourceId('Microsoft.Compute/virtualMachines', variables('N2VMName'), 'extensions/SqlIaasExtension')]",
+                        "[resourceId('Microsoft.Compute/virtualMachines', variables('AD1VMName'), 'extensions/CreateNewForest')]"
                     ],            
                     "properties": {
                         "virtualMachineResourceId": "[resourceId('Microsoft.Compute/virtualMachines', variables('N2VMName'))]",
