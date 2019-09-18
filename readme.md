@@ -28,3 +28,8 @@ Broken Up
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fallanhirt%2FAzureAGLabv2%2Fmaster%2FBaseLab.json" target="_blank">
     <img src="http://azuredeploy.net/deploybutton.png"/>
 </a>
+
+Loop
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fallanhirt%2FAzureAGLabv2%2Fmaster%2FCreateSQLVMsv2.json" target="_blank">
+    <img src="http://azuredeploy.net/deploybutton.png"/>
+</a>
