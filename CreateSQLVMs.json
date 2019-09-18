@@ -533,8 +533,8 @@
                     "location": "[variables('AZRegion')]",
                     "dependsOn": [
                         "[resourceId('Microsoft.Compute/virtualMachines', variables('N2VMName'))]",
-                        "[resourceId('Microsoft.Compute/virtualMachines', variables('N2VMName'), 'extensions/SqlIaasExtension')]",
-                        "[resourceId('Microsoft.Compute/virtualMachines', variables('AD1VMName'), 'extensions/CreateNewForest')]"
+                        "[resourceId('Microsoft.Compute/virtualMachines/LabN2/extensions/SqlIaasExtension')]",
+                        "[resourceId('Microsoft.Compute/virtualMachines/LabDC/extensions/CreateNewForest')]"
                     ],            
                     "properties": {
                         "virtualMachineResourceId": "[resourceId('Microsoft.Compute/virtualMachines', variables('N2VMName'))]",
