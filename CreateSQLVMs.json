@@ -113,7 +113,7 @@
             "zones": ["2"]
         },
         {
-            "name": "ConfigureSQLServerOnN1",
+            "name": "[variables('N1VMName')]",
             "type": "Microsoft.SqlVirtualMachine/SqlVirtualMachines",
             "apiVersion": "2017-03-01-preview",
             "location": "[variables('AZRegion')]",
