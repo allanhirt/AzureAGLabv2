@@ -1,0 +1,118 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "adminPassword": {
+            "type": "secureString"
+        }
+    },
+    "variables": {
+        "AD1VMName": "LabDC",
+        "AD1VMNICName": "LabDCNIC",
+        "AD1VMPublicIPAddressName": "LabDCPublicIP",
+        "ADVMSize": "Standard_DS2_v2",
+        "AGVMSize": "Standard_D2s_v3",
+        "AZRegion": "eastus2",
+        "dataDisks": [
+            {
+                    "lun": "0",
+                    "createOption": "empty",
+                    "caching": "ReadOnly",
+                    "writeAcceleratorEnabled": false,
+                    "id": null,
+                    "name": null,
+                    "storageAccountType": "[variables('dataStorageType')]",
+                    "diskSizeGB": "1023"
+            }
+        ],
+        "dataStorageType": "Premium_LRS",
+        "domainadminUsername": "sqlhaudomainadmin",
+        "domainName": "SQLHAU.AZURELAB",
+        "localadminUsername": "sqlhaulocaladmin",
+        "N1VMName": "LabN1",
+        "N1VMNICName": "LabN1NIC",
+        "N1VMPublicIPAddressName": "LabN1PublicIP",
+        "N2VMName": "LabN2",
+        "N2VMNICName": "LabN2NIC",
+        "N2VMPublicIPAddressName": "LabN2PublicIP",
+        "networkSecurityGroupName": "LabNSG",
+        "nsgId": "[resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]",
+        "osStorageType": "Premium_LRS",
+        "subnetName": "LabSubnet",
+        "subnetRef": "[concat(variables('vnetId'), '/subnets/', variables('subnetName'))]",
+        "virtualNetworkName": "Labnet",
+        "vnetId": "[resourceId(resourceGroup().name,'Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
+    },
+    "resources": [
+        {
+            "name": "[variables('virtualNetworkName')]",
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2018-08-01",
+            "location": "[variables('AZRegion')]",
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                "10.0.6.0/24"
+            ]
+                },
+                "dhcpoptions": {
+                    "dnsServers": [
+                        "10.0.6.25"
+                    ]
+                },
+                "subnets": [
+                {
+                    "name": "[variables('subnetName')]",
+                    "properties": {
+                        "addressPrefix": "10.0.6.0/24"
+                    }
+                }
+            ]
+            }
+        },
+        {
+            "name": "[variables('networkSecurityGroupName')]",
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2018-08-01",
+            "location": "[variables('AZRegion')]",
+            "properties": {
+                "securityRules": [
+                {
+                    "name": "RDP",
+                    "properties": {
+                        "priority": 300,
+                        "protocol": "TCP",
+                        "access": "Allow",
+                        "direction": "Inbound",
+                        "sourceAddressPrefix": "*",
+                        "sourcePortRange": "*",
+                        "destinationAddressPrefix": "*",
+                        "destinationPortRange": "3389"
+                    }
+                }
+            ]
+            }
+        },
+        {
+            "apiVersion": "2019-05-01",
+            "name": "addstemplate",
+            "type": "Microsoft.Resources/deployments",
+            "dependsOn": [
+                "[concat('Microsoft.Network/networkSecurityGroups/', variables('networkSecurityGroupName'))]",
+                "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "https://sqlhauclassstuff.blob.core.windows.net/sqlhaulabstuff/LabVMTemplates/ADDSVM.json",
+                    }
+            }
+        }
+    ],
+    "outputs": {
+        "adminUsername": {
+            "type": "string",
+            "value": "[variables('localadminUsername')]"
+        }
+    }
+}
