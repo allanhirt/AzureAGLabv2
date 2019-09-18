@@ -11,7 +11,7 @@
         "AD1VMNICName": "LabDCNIC",
         "AD1VMPublicIPAddressName": "LabDCPublicIP",
         "ADVMList": "(variables('AD1VMName'))",
-        "ADListArray": "[split(variables('NodeVMList'),',')]",
+        "ADListArray": "[split(variables('ADVMList'),',')]",
         "ADVMSize": "Standard_DS2_v2",
         "AGVMSize": "Standard_D2s_v3",
         "AZRegion": "eastus2",
@@ -31,12 +31,24 @@
         "domainadminUsername": "sqlhaudomainadmin",
         "domainName": "SQLHAU.AZURELAB",
         "localadminUsername": "sqlhaulocaladmin",
-        "N1VMName": "LabN1",
-        "N1VMNICName": "LabN1NIC",
-        "N1VMPublicIPAddressName": "LabN1PublicIP",
-        "N2VMName": "LabN2",
-        "N2VMNICName": "LabN2NIC",
-        "N2VMPublicIPAddressName": "LabN2PublicIP",
+        "Nodes": [
+            {
+                "ipconfig": "LabN1IPconfig",
+                "nicname": "LabN1NIC",
+                "nodename": "LabN1",
+                "publicIpAddressName": "LabN1PublicIP",
+                "staticIpAddress": "10.0.6.100",
+                "zone": "2"
+            },
+            {
+                "ipconfig": "LabN2IPconfig",
+                "nicname": "LabN2NIC",
+                "nodename": "LabN2",
+                "publicIpAddressName": "LabN2PublicIP",
+                "staticIpAddress": "10.0.6.101",
+                "zone": "3"
+            }
+        ],
         "networkSecurityGroupName": "LabNSG",
         "nsgId": "[resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]",
         "osStorageType": "Premium_LRS",
@@ -92,7 +104,7 @@
                         "destinationPortRange": "3389"
                     }
                 }
-            ]
+                ]
             }
         },
         {
@@ -142,7 +154,7 @@
             }
         },
         {
-            "name": "[variables('N1VMPublicIPAddressName')]",
+            "name": "[variables('Nodes')[copyIndex()].publicIpAddressName]",
             "type": "Microsoft.Network/publicIpAddresses",
             "apiVersion": "2018-08-01",
             "location": "[variables('AZRegion')]",
@@ -153,77 +165,39 @@
                 "name": "Standard"
             },
             "zones": [
-                "2"
-            ]
-        },
-        {
-            "name": "[variables('N1VMNICName')]",
-            "type": "Microsoft.Network/networkInterfaces",
-            "apiVersion": "2018-10-01",
-            "location": "[variables('AZRegion')]",
-            "dependsOn": [
-                "[concat('Microsoft.Network/networkSecurityGroups/', variables('networkSecurityGroupName'))]",
-                "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
-                "[concat('Microsoft.Network/publicIpAddresses/', variables('N1VMPublicIPAddressName'))]"
+                "[variables('Nodes')[copyIndex()].zone]"
             ],
-            "properties": {
-                "ipConfigurations": [
-                    {
-                        "name": "N1VMIPConfig",
-                        "properties": {
-                            "subnet": {
-                                "id": "[variables('subnetRef')]"
-                            },
-                            "privateIPAddress": "10.0.6.100",
-                            "privateIPAllocationMethod": "Static",
-                            "publicIpAddress": {
-                                "id": "[resourceId(resourceGroup().name, 'Microsoft.Network/publicIpAddresses', variables('N1VMPublicIPAddressName'))]"
-                            }
-                        }
-                    }
-                ],
-                "networkSecurityGroup": {
-                    "id": "[variables('nsgId')]"
-                }
+            "copy": {
+                    "name": "publicIPloop",
+                    "count": "[length(variables('Nodes'))]"
             }
         },
         {
-            "name": "[variables('N2VMPublicIPAddressName')]",
-            "type": "Microsoft.Network/publicIpAddresses",
-            "apiVersion": "2018-08-01",
-            "location": "[variables('AZRegion')]",
-            "properties": {
-                "publicIpAllocationMethod": "Static"
-            },
-            "sku": {
-                "name": "Standard"
-            },
-            "zones": [
-                "3"
-            ]
-        },
-        {
-            "name": "[variables('N2VMNICName')]",
+            "name": "[variables('Nodes')[copyIndex()].nicname]",
             "type": "Microsoft.Network/networkInterfaces",
             "apiVersion": "2018-10-01",
             "location": "[variables('AZRegion')]",
+            "copy": {
+                    "name": "nodenicloop",
+                    "count": "[length(variables('Nodes'))]"
+            },
             "dependsOn": [
                 "[concat('Microsoft.Network/networkSecurityGroups/', variables('networkSecurityGroupName'))]",
                 "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
-                "[concat('Microsoft.Network/publicIpAddresses/', variables('N2VMPublicIPAddressName'))]"
+                "[concat('Microsoft.Network/publicIpAddresses/', variables('Nodes')[copyIndex()].publicIpAddressName)]"
             ],
             "properties": {
                 "ipConfigurations": [
                     {
-                        "name": "N2VMIPConfig",
+                        "name": "[variables('Nodes')[copyIndex()].ipconfig]",
                         "properties": {
                             "subnet": {
                                 "id": "[variables('subnetRef')]"
                             },
-                            "privateIPAddress": "10.0.6.101",
+                            "privateIPAddress": "[variables('Nodes')[copyIndex()].staticIpAddress]",
                             "privateIPAllocationMethod": "Static",
                             "publicIpAddress": {
-                                "id": "[resourceId(resourceGroup().name, 'Microsoft.Network/publicIpAddresses', variables('N2VMPublicIPAddressName'))]"
+                                "id": "[resourceId(resourceGroup().name, 'Microsoft.Network/publicIpAddresses', variables('Nodes')[copyIndex()].publicIpAddressName)]"
                             }
                         }
                     }
@@ -281,185 +255,7 @@
                 "publisher": "cloud-infrastructure-services",
                 "product": "ad-dc-2019"
             },
-            "zones": ["1"],
-            "resources": [
-                {
-                    "name": "CreateNewForest",
-                    "type": "extensions",
-                    "apiVersion": "2019-07-01",
-                    "location": "[variables('AZRegion')]",
-                    "dependsOn": [
-                            "[resourceId('Microsoft.Compute/virtualMachines', variables('AD1VMName'))]"
-                    ],
-                    "copy": {
-                        "name": "ConfigureADDS",
-                        "count": "[length(variables('AD1VMName'))]"
-                    },
-                    "properties": {
-                        "publisher": "Microsoft.Powershell",
-                        "type": "DSC",
-                        "typeHandlerVersion": "2.78",
-                        "autoUpgradeMinorVersion": true,
-                        "settings": {
-                            "configuration": {
-                                "url": "https://sqlhauclassstuff.blob.core.windows.net/sqlhaulabstuff/CreateADForest_0918.zip",
-                                "script": "CreateADForest_0918.ps1",
-                                "function": "LabDC"
-                            },
-                            "configurationArguments": {
-                                "FQDN": "[variables('domainName')]"
-                            }
-                        },
-                        "protectedSettings": {
-                            "configurationArguments": {
-                                "domainAdminCreds": {
-                                    "userName": "[variables('domainadminUsername')]",
-                                    "password": "[parameters('adminPassword')]"
-                                }
-                            }
-                        }
-                    }
-                }
-            ]    
-        },
-        {
-            "name": "[variables('N1VMName')]",
-            "type": "Microsoft.Compute/virtualMachines",
-            "apiVersion": "2018-10-01",
-            "location": "[variables('AZRegion')]",
-            "dependsOn": [
-                "[concat('Microsoft.Network/networkInterfaces/', variables('N1VMNICName'))]"
-            ],
-            "properties": {
-                "hardwareProfile": {
-                    "vmSize": "[variables('AGVMSize')]"
-                },
-                "storageProfile": {
-                    "osDisk": {
-                        "createOption": "fromImage",
-                        "managedDisk": {
-                            "storageAccountType": "[variables('osStorageType')]"
-                        }
-                    },
-                    "imageReference": {
-                        "publisher": "MicrosoftSQLServer",
-                        "offer": "SQL2017-WS2016",
-                        "sku": "SQLDEV",
-                        "version": "latest"
-                    },
-                    "copy": [
-                        {
-                            "name": "dataDisks",
-                            "count": "[length(variables('dataDisks'))]",
-                            "input": {
-                                "lun": "[variables('dataDisks')[copyIndex('dataDisks')].lun]",
-                                "createOption": "[variables('dataDisks')[copyIndex('dataDisks')].createOption]",
-                                "caching": "[variables('dataDisks')[copyIndex('dataDisks')].caching]",
-                                "writeAcceleratorEnabled": "[variables('dataDisks')[copyIndex('dataDisks')].writeAcceleratorEnabled]",
-                                "diskSizeGB": "[variables('dataDisks')[copyIndex('dataDisks')].diskSizeGB]",
-                                "managedDisk": {
-                                    "id": "[coalesce(variables('dataDisks')[copyIndex('dataDisks')].id, if(equals(variables('dataDisks')[copyIndex('dataDisks')].name, json('null')), json('null'), resourceId('Microsoft.Compute/disks', variables('dataDisks')[copyIndex('dataDisks')].name)))]",
-                                    "storageAccountType": "[variables('dataDisks')[copyIndex('dataDisks')].storageAccountType]"
-                                }
-                            }
-                        }
-                    ]
-                },
-                "networkProfile": {
-                    "networkInterfaces": [
-                        {
-                            "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('N1VMNICName'))]"
-                        }
-                    ]
-                },
-                "osProfile": {
-                    "computerName": "[variables('N1VMName')]",
-                    "adminUsername": "[variables('localadminUsername')]",
-                    "adminPassword": "[parameters('adminPassword')]",
-                    "windowsConfiguration": {
-                        "enableAutomaticUpdates": true,
-                        "provisionVmAgent": true
-                    }
-                },
-                "licenseType": "Windows_Server",
-                "diagnosticsProfile": {
-                    "bootDiagnostics": {
-                        "enabled": false
-                    }
-                }
-            },
-            "zones": ["2"]
-        },
-        {
-            "name": "[variables('N2VMName')]",
-            "type": "Microsoft.Compute/virtualMachines",
-            "apiVersion": "2018-10-01",
-            "location": "[variables('AZRegion')]",
-            "dependsOn": [
-                "[concat('Microsoft.Network/networkInterfaces/', variables('N2VMNICName'))]",
-                "ConfigureADDS"
-            ],
-            "properties": {
-                "hardwareProfile": {
-                    "vmSize": "[variables('AGVMSize')]"
-                },
-                "storageProfile": {
-                    "osDisk": {
-                        "createOption": "fromImage",
-                        "managedDisk": {
-                            "storageAccountType": "[variables('osStorageType')]"
-                        }
-                    },
-                    "imageReference": {
-                        "publisher": "MicrosoftSQLServer",
-                        "offer": "SQL2017-WS2016",
-                        "sku": "SQLDEV",
-                        "version": "latest"
-                    },
-                    "copy": [
-                        {
-                            "name": "dataDisks",
-                            "count": "[length(variables('dataDisks'))]",
-                            "input": {
-                                "lun": "[variables('dataDisks')[copyIndex('dataDisks')].lun]",
-                                "createOption": "[variables('dataDisks')[copyIndex('dataDisks')].createOption]",
-                                "caching": "[variables('dataDisks')[copyIndex('dataDisks')].caching]",
-                                "writeAcceleratorEnabled": "[variables('dataDisks')[copyIndex('dataDisks')].writeAcceleratorEnabled]",
-                                "diskSizeGB": "[variables('dataDisks')[copyIndex('dataDisks')].diskSizeGB]",
-                                "managedDisk": {
-                                    "id": "[coalesce(variables('dataDisks')[copyIndex('dataDisks')].id, if(equals(variables('dataDisks')[copyIndex('dataDisks')].name, json('null')), json('null'), resourceId('Microsoft.Compute/disks', variables('dataDisks')[copyIndex('dataDisks')].name)))]",
-                                    "storageAccountType": "[variables('dataDisks')[copyIndex('dataDisks')].storageAccountType]"
-                                }
-                            }
-                        }
-                    ]
-                },
-                "networkProfile": {
-                    "networkInterfaces": [
-                        {
-                            "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('N2VMNICName'))]"
-                        }
-                    ]
-                },
-                "osProfile": {
-                    "computerName": "[variables('N2VMName')]",
-                    "adminUsername": "[variables('localadminUsername')]",
-                    "adminPassword": "[parameters('adminPassword')]",
-                    "windowsConfiguration": {
-                        "enableAutomaticUpdates": true,
-                        "provisionVmAgent": true
-                    }
-                },
-                "licenseType": "Windows_Server",
-                "diagnosticsProfile": {
-                    "bootDiagnostics": {
-                        "enabled": false
-                    }
-                }
-            },
-            "zones": [
-                "3"
-            ]
+            "zones": ["1"]
         }
     ],
     "outputs": {
