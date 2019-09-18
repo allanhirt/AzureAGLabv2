@@ -3,7 +3,7 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "adminPassword": {
-            "type": "secureString"
+            "type": "SecureString"
         }
     },
     "variables": {
@@ -17,14 +17,14 @@
         "AZRegion": "eastus2",
         "dataDisks": [
             {
-                    "lun": "0",
-                    "createOption": "empty",
-                    "caching": "ReadOnly",
-                    "writeAcceleratorEnabled": false,
-                    "id": null,
-                    "name": null,
-                    "storageAccountType": "[variables('dataStorageType')]",
-                    "diskSizeGB": "1023"
+                "lun": "0",
+                "createOption": "empty",
+                "caching": "ReadOnly",
+                "writeAcceleratorEnabled": false,
+                "id": null,
+                "name": null,
+                "storageAccountType": "[variables('dataStorageType')]",
+                "diskSizeGB": "1023"
             }
         ],
         "dataStorageType": "Premium_LRS",
@@ -59,15 +59,15 @@
     },
     "resources": [
         {
-            "name": "[variables('virtualNetworkName')]",
             "type": "Microsoft.Network/virtualNetworks",
             "apiVersion": "2018-08-01",
+            "name": "[variables('virtualNetworkName')]",
             "location": "[variables('AZRegion')]",
             "properties": {
                 "addressSpace": {
                     "addressPrefixes": [
-                "10.0.6.0/24"
-            ]
+                        "10.0.6.0/24"
+                    ]
                 },
                 "dhcpoptions": {
                     "dnsServers": [
@@ -75,57 +75,57 @@
                     ]
                 },
                 "subnets": [
-                {
-                    "name": "[variables('subnetName')]",
-                    "properties": {
-                        "addressPrefix": "10.0.6.0/24"
+                    {
+                        "name": "[variables('subnetName')]",
+                        "properties": {
+                            "addressPrefix": "10.0.6.0/24"
+                        }
                     }
-                }
-            ]
-            }
-        },
-        {
-            "name": "[variables('networkSecurityGroupName')]",
-            "type": "Microsoft.Network/networkSecurityGroups",
-            "apiVersion": "2018-08-01",
-            "location": "[variables('AZRegion')]",
-            "properties": {
-                "securityRules": [
-                {
-                    "name": "RDP",
-                    "properties": {
-                        "priority": 300,
-                        "protocol": "TCP",
-                        "access": "Allow",
-                        "direction": "Inbound",
-                        "sourceAddressPrefix": "*",
-                        "sourcePortRange": "*",
-                        "destinationAddressPrefix": "*",
-                        "destinationPortRange": "3389"
-                    }
-                }
                 ]
             }
         },
         {
-            "name": "[variables('AD1VMPublicIPAddressName')]",
-            "type": "Microsoft.Network/publicIpAddresses",
+            "type": "Microsoft.Network/networkSecurityGroups",
             "apiVersion": "2018-08-01",
+            "name": "[variables('networkSecurityGroupName')]",
             "location": "[variables('AZRegion')]",
             "properties": {
-                "publicIpAllocationMethod": "Static"
-            },
+                "securityRules": [
+                    {
+                        "name": "RDP",
+                        "properties": {
+                            "priority": 300,
+                            "protocol": "TCP",
+                            "access": "Allow",
+                            "direction": "Inbound",
+                            "sourceAddressPrefix": "*",
+                            "sourcePortRange": "*",
+                            "destinationAddressPrefix": "*",
+                            "destinationPortRange": "3389"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/publicIpAddresses",
+            "apiVersion": "2018-08-01",
+            "name": "[variables('AD1VMPublicIPAddressName')]",
+            "location": "[variables('AZRegion')]",
             "sku": {
                 "name": "Standard"
             },
             "zones": [
                 "1"
-            ]
+            ],
+            "properties": {
+                "publicIpAllocationMethod": "Static"
+            }
         },
         {
-            "name": "[variables('AD1VMNICName')]",
             "type": "Microsoft.Network/networkInterfaces",
             "apiVersion": "2018-10-01",
+            "name": "[variables('AD1VMNICName')]",
             "location": "[variables('AZRegion')]",
             "dependsOn": [
                 "[concat('Microsoft.Network/networkSecurityGroups/', variables('networkSecurityGroupName'))]",
@@ -154,33 +154,29 @@
             }
         },
         {
-            "name": "[variables('Nodes')[copyIndex()].publicIpAddressName]",
             "type": "Microsoft.Network/publicIpAddresses",
             "apiVersion": "2018-08-01",
+            "name": "[variables('Nodes')[copyIndex()].publicIpAddressName]",
             "location": "[variables('AZRegion')]",
-            "properties": {
-                "publicIpAllocationMethod": "Static"
-            },
             "sku": {
                 "name": "Standard"
             },
             "zones": [
                 "[variables('Nodes')[copyIndex()].zone]"
             ],
+            "properties": {
+                "publicIpAllocationMethod": "Static"
+            },
             "copy": {
-                    "name": "publicIPloop",
-                    "count": "[length(variables('Nodes'))]"
+                "name": "publicIPloop",
+                "count": "[length(variables('Nodes'))]"
             }
         },
         {
-            "name": "[variables('Nodes')[copyIndex()].nicname]",
             "type": "Microsoft.Network/networkInterfaces",
             "apiVersion": "2018-10-01",
+            "name": "[variables('Nodes')[copyIndex()].nicname]",
             "location": "[variables('AZRegion')]",
-            "copy": {
-                    "name": "nodenicloop",
-                    "count": "[length(variables('Nodes'))]"
-            },
             "dependsOn": [
                 "[concat('Microsoft.Network/networkSecurityGroups/', variables('networkSecurityGroupName'))]",
                 "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
@@ -205,16 +201,28 @@
                 "networkSecurityGroup": {
                     "id": "[variables('nsgId')]"
                 }
+            },
+            "copy": {
+                "name": "nodenicloop",
+                "count": "[length(variables('Nodes'))]"
             }
         },
         {
-            "name": "[variables('AD1VMName')]",
             "type": "Microsoft.Compute/virtualMachines",
             "apiVersion": "2018-10-01",
+            "name": "[variables('AD1VMName')]",
             "location": "[variables('AZRegion')]",
             "dependsOn": [
                 "[concat('Microsoft.Network/networkInterfaces/', variables('AD1VMNICName'))]"
             ],
+            "zones": [
+                "1"
+            ],
+            "plan": {
+                "name": "ad-dc-2019",
+                "publisher": "cloud-infrastructure-services",
+                "product": "ad-dc-2019"
+            },
             "properties": {
                 "hardwareProfile": {
                     "vmSize": "[variables('ADVMSize')]"
@@ -249,18 +257,84 @@
                         "provisionVmAgent": true
                     }
                 }
+            }
+        },
+        {
+            "name": "variables('Nodes')[copyIndex('Nodes')].nodename",
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2018-10-01",
+            "location": "[variables('AZRegion')]",
+            "dependsOn": [
+                "[concat('Microsoft.Network/networkInterfaces/', variables('Nodes')[copyIndex('Nodes')].nicname)]"
+            ],
+            "copy": {
+                "name": "nodeloop",
+                "count": "[length(variables('Nodes'))]"
             },
-            "plan": {
-                "name": "ad-dc-2019",
-                "publisher": "cloud-infrastructure-services",
-                "product": "ad-dc-2019"
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "[variables('AGVMSize')]"
+                },
+                "storageProfile": {
+                    "osDisk": {
+                        "createOption": "fromImage",
+                        "managedDisk": {
+                            "storageAccountType": "[variables('osStorageType')]"
+                        }
+                    },
+                    "imageReference": {
+                        "publisher": "MicrosoftSQLServer",
+                        "offer": "SQL2017-WS2016",
+                        "sku": "SQLDEV",
+                        "version": "latest"
+                    },
+                    "copy": [
+                        {
+                            "name": "dataDisks",
+                            "count": "[length(variables('dataDisks'))]",
+                            "input": {
+                                "lun": "[variables('dataDisks')[copyIndex('dataDisks')].lun]",
+                                "createOption": "[variables('dataDisks')[copyIndex('dataDisks')].createOption]",
+                                "caching": "[variables('dataDisks')[copyIndex('dataDisks')].caching]",
+                                "writeAcceleratorEnabled": "[variables('dataDisks')[copyIndex('dataDisks')].writeAcceleratorEnabled]",
+                                "diskSizeGB": "[variables('dataDisks')[copyIndex('dataDisks')].diskSizeGB]",
+                                "managedDisk": {
+                                    "id": "[coalesce(variables('dataDisks')[copyIndex('dataDisks')].id, if(equals(variables('dataDisks')[copyIndex('dataDisks')].name, json('null')), json('null'), resourceId('Microsoft.Compute/disks', variables('dataDisks')[copyIndex('dataDisks')].name)))]",
+                                    "storageAccountType": "[variables('dataDisks')[copyIndex('dataDisks')].storageAccountType]"
+                                }
+                            }
+                        }
+                    ]
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('Nodes')[copyIndex('Nodes')].nicname)]"
+                        }
+                    ]
+                },
+                "osProfile": {
+                    "computerName": "[variables('Nodes')[copyIndex('Nodes')].nodename]",
+                    "adminUsername": "[variables('localadminUsername')]",
+                    "adminPassword": "[parameters('adminPassword')]",
+                    "windowsConfiguration": {
+                        "enableAutomaticUpdates": true,
+                        "provisionVmAgent": true
+                    }
+                },
+                "licenseType": "Windows_Server",
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": false
+                    }
+                }
             },
-            "zones": ["1"]
+                "zones": ["[variables('Nodes')[copyIndex('Nodes')].zone]"]
         }
     ],
     "outputs": {
         "adminUsername": {
-            "type": "string",
+            "type": "String",
             "value": "[variables('localadminUsername')]"
         }
     }
