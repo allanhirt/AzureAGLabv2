@@ -7,34 +7,7 @@
         }
     },
     "variables": {
-        "AD1VMName": "LabDC",
-        "AD1VMNICName": "LabDCNIC",
-        "AD1VMPublicIPAddressName": "LabDCPublicIP",
-        "ADVMSize": "Standard_DS2_v2",
-        "AGVMSize": "Standard_D2s_v3",
         "AZRegion": "eastus2",
-        "dataDisks": [
-            {
-                    "lun": "0",
-                    "createOption": "empty",
-                    "caching": "ReadOnly",
-                    "writeAcceleratorEnabled": false,
-                    "id": null,
-                    "name": null,
-                    "storageAccountType": "[variables('dataStorageType')]",
-                    "diskSizeGB": "1023"
-            }
-        ],
-        "dataStorageType": "Premium_LRS",
-        "domainadminUsername": "sqlhaudomainadmin",
-        "domainName": "SQLHAU.AZURELAB",
-        "localadminUsername": "sqlhaulocaladmin",
-        "N1VMName": "LabN1",
-        "N1VMNICName": "LabN1NIC",
-        "N1VMPublicIPAddressName": "LabN1PublicIP",
-        "N2VMName": "LabN2",
-        "N2VMNICName": "LabN2NIC",
-        "N2VMPublicIPAddressName": "LabN2PublicIP",
         "networkSecurityGroupName": "LabNSG",
         "nsgId": "[resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]",
         "osStorageType": "Premium_LRS",
