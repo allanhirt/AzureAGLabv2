@@ -77,7 +77,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "https://sqlhauclassstuff.blob.core.windows.net/sqlhaulabstuff/LabVMTemplates/ADDSVM.json",
+                    "uri": "https://sqlhauclassstuff.blob.core.windows.net/sqlhaulabstuff/LabVMTemplates/ADDSVM.json"
                 }
             },
             "parameters": {
