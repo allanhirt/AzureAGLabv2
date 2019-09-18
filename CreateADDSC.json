@@ -296,8 +296,8 @@
                         "autoUpgradeMinorVersion": true,
                         "settings": {
                             "configuration": {
-                                "url": "https://sqlhauclassstuff.blob.core.windows.net/sqlhaulabstuff/CreateADForest.zip",
-                                "script": "CreateADForestv4.ps1",
+                                "url": "https://sqlhauclassstuff.blob.core.windows.net/sqlhaulabstuff/CreateADForest_0918.zip",
+                                "script": "CreateADForest_0918.ps1",
                                 "function": "LabDC"
                             },
                             "configurationArguments": {
