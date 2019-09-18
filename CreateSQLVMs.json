@@ -391,7 +391,7 @@
                     "location": "[variables('AZRegion')]",
                     "dependsOn": [
                             "[resourceId('Microsoft.Compute/virtualMachines', variables('N1VMName'))]",
-                            "LabDC/CreateNewForest"
+                            "CreateNewForest"
                     ],
                     "properties": {
                         "publisher": "Microsoft.Powershell",
@@ -421,13 +421,12 @@
             ]    
         },
         {
-            "name": "[variables('N1VMName')]",
+            "name": "BaseSQLServerConfigN1",
             "type": "Microsoft.SqlVirtualMachine/SqlVirtualMachines",
             "apiVersion": "2017-03-01-preview",
             "location": "[variables('AZRegion')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Compute/virtualMachines', variables('N1VMName'))]",
-                "LabN1/ConfigureNode1"
             ],
             "properties": {
                 "virtualMachineResourceId": "[resourceId('Microsoft.Compute/virtualMachines', variables('N1VMName'))]",
