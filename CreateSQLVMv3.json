@@ -453,6 +453,21 @@
             "zones": [
                 "3"
             ]
+        },
+        {
+            "apiVersion": "2019-05-01",
+            "name": "addstemplate",
+            "type": "Microsoft.Resources/deployments",
+            "dependsOn": [
+                "[concat('Microsoft.Network/networkSecurityGroups/', variables('networkSecurityGroupName'))]",
+                "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "https://sqlhauclassstuff.blob.core.windows.net/sqlhaulabstuff/LabVMTemplates/ADDSVM.json"
+                }
+            }
         }
     ],
     "outputs": {
