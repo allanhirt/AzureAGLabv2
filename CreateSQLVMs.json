@@ -169,7 +169,7 @@
                             "configuration": {
                                 "url": "https://sqlhauclassstuff.blob.core.windows.net/sqlhaulabstuff/ConfigureNodes_0918.zip",
                                 "script": "ConfigureNodes_0918.ps1",
-                                "function": "N1Config"
+                                "function": "Node1Config"
                             },
                             "configurationArguments": {
                                 "FQDN": "[variables('domainName')]"
