@@ -10,6 +10,8 @@
         "AD1VMName": "LabDC",
         "AD1VMNICName": "LabDCNIC",
         "AD1VMPublicIPAddressName": "LabDCPublicIP",
+        "ADVMList": "(variables('AD1VMName'))",
+        "ADListArray": "[split(variables('NodeVMList'),',')]",
         "ADVMSize": "Standard_DS2_v2",
         "AGVMSize": "Standard_D2s_v3",
         "AZRegion": "eastus2",
@@ -289,6 +291,10 @@
                     "dependsOn": [
                             "[resourceId('Microsoft.Compute/virtualMachines', variables('AD1VMName'))]"
                     ],
+                    "copy": {
+                        "name": "ConfigureADDS",
+                        "count": "[length(variables('AD1VMName'))]"
+                    },
                     "properties": {
                         "publisher": "Microsoft.Powershell",
                         "type": "DSC",
@@ -390,7 +396,8 @@
             "apiVersion": "2018-10-01",
             "location": "[variables('AZRegion')]",
             "dependsOn": [
-                "[concat('Microsoft.Network/networkInterfaces/', variables('N2VMNICName'))]"
+                "[concat('Microsoft.Network/networkInterfaces/', variables('N2VMNICName'))]",
+                "ConfigureADDS"
             ],
             "properties": {
                 "hardwareProfile": {
