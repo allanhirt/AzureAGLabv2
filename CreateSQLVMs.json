@@ -385,10 +385,13 @@
             "zones": ["2"]
         },
         {
-            "name": "ConfigureSQLServerOnN1",
+            "name": "[variables('N1VMName')]",
             "type": "Microsoft.SqlVirtualMachine/SqlVirtualMachines",
             "apiVersion": "2017-03-01-preview",
             "location": "[variables('AZRegion')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', variables('N1VMName'))]"
+            ],
             "properties": {
                 "virtualMachineResourceId": "[resourceId('Microsoft.Compute/virtualMachines', variables('N1VMName'))]",
                 "sqlManagement": "Full",
@@ -418,10 +421,7 @@
                         "IsRServicesEnabled": false
                     }
                 }
-            },
-            "dependsOn": [
-                "[resourceId('Microsoft.Compute/virtualMachines', variables('N1VMName'))]"
-            ]
+            }
         },
         {
             "name": "[variables('N2VMName')]",
@@ -492,10 +492,13 @@
                 "zones": ["3"]
         },
         {
-            "name": "ConfigureSQLServerOnN2",
+            "name": "[variables('N2VMName')]",
             "type": "Microsoft.SqlVirtualMachine/SqlVirtualMachines",
             "apiVersion": "2017-03-01-preview",
             "location": "[variables('AZRegion')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', variables('N2VMName'))]"
+            ],            
             "properties": {
                 "virtualMachineResourceId": "[resourceId('Microsoft.Compute/virtualMachines', variables('N2VMName'))]",
                 "sqlManagement": "Full",
@@ -525,10 +528,7 @@
                         "IsRServicesEnabled": false
                     }
                 }
-            },
-            "dependsOn": [
-                "[resourceId('Microsoft.Compute/virtualMachines', variables('N2VMName'))]"
-            ]            
+            }
         }
     ],
     "outputs": {
