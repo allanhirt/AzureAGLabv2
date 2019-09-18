@@ -78,32 +78,32 @@
                 "mode": "Incremental",
                 "templateLink": {
                     "uri": "https://sqlhauclassstuff.blob.core.windows.net/sqlhaulabstuff/LabVMTemplates/ADDSVM.json"
-                }
-            },
-            "parameters": {
-                "AZRegion": {
-                    "value": "[variables('AZRegion')]"
                 },
-                "networkSecurityGroupName": {
-                    "value": "[variables('networkSecurityGroupName')]"
-                },
-                "nsgId": {
-                    "value": "[variables('nsgId')]"
-                },
-                "osStorageType": {
-                    "value": "[variables('osStorageType')]"
-                },
-                "subnetName": {
-                    "value": "[variables('subnetName')]"
-                },
-                "subnetRef": {
-                    "value": "[variables('subnetRef')]"
-                },
-                "virtualNetworkName": {
-                    "value": "[variables('virtualNetworkName')]"
-                },
-                "vnetId": {
-                    "value": "[variables('vnetId')]"
+                "parameters": {
+                    "AZRegion": {
+                        "value": "[variables('AZRegion')]"
+                    },
+                    "networkSecurityGroupName": {
+                        "value": "[variables('networkSecurityGroupName')]"
+                    },
+                    "nsgId": {
+                        "value": "[variables('nsgId')]"
+                    },
+                    "osStorageType": {
+                        "value": "[variables('osStorageType')]"
+                    },
+                    "subnetName": {
+                        "value": "[variables('subnetName')]"
+                    },
+                    "subnetRef": {
+                        "value": "[variables('subnetRef')]"
+                    },
+                    "virtualNetworkName": {
+                        "value": "[variables('virtualNetworkName')]"
+                    },
+                    "vnetId": {
+                        "value": "[variables('vnetId')]"
+                    }
                 }
             }
         }
