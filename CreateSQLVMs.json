@@ -196,41 +196,6 @@
                     }
                 }
             }
-        },
-        {
-            "name": "ConfigureNode1",
-            "type": "extensions",
-            "apiVersion": "2019-07-01",
-            "location": "[variables('AZRegion')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Compute/virtualMachines', variables('N1VMName'))]",
-                "[resourceId('Microsoft.Compute/virtualMachines', variables('AD1VMName'))]"
-                "[resourceId('Microsoft.SqlVirtualMachine/SqlVirtualMachines', variables('N1VMName'))]",
-            ],
-            "properties": {
-                "publisher": "Microsoft.Powershell",
-                "type": "DSC",
-                "typeHandlerVersion": "2.78",
-                "autoUpgradeMinorVersion": true,
-                "settings": {
-                    "configuration": {
-                        "url": "https://sqlhauclassstuff.blob.core.windows.net/sqlhaulabstuff/ConfigureNodes_0918.zip",
-                        "script": "ConfigureNodes_0918.ps1",
-                        "function": "Node1Config"
-                    },
-                    "configurationArguments": {
-                        "FQDN": "[variables('domainName')]"
-                    }
-                },
-                "protectedSettings": {
-                    "configurationArguments": {
-                        "domainAdminCreds": {
-                            "userName": "[variables('localadminUsername')]",
-                            "password": "[parameters('adminPassword')]"
-                        }
-                    }
-                }
-            }
         }    
     ],
     "outputs": {
