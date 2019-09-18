@@ -385,12 +385,13 @@
             "zones": ["2"],
             "resources": [
                 {
-                    "name": "CreateNewForest",
+                    "name": "ConfigureNode1",
                     "type": "extensions",
                     "apiVersion": "2019-07-01",
                     "location": "[variables('AZRegion')]",
                     "dependsOn": [
-                            "[resourceId('Microsoft.Compute/virtualMachines', variables('N1VMName'))]"
+                            "[resourceId('Microsoft.Compute/virtualMachines', variables('N1VMName'))]",
+                            "LabDC/CreateNewForest"
                     ],
                     "properties": {
                         "publisher": "Microsoft.Powershell",
@@ -425,7 +426,8 @@
             "apiVersion": "2017-03-01-preview",
             "location": "[variables('AZRegion')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Compute/virtualMachines', variables('N1VMName'))]"
+                "[resourceId('Microsoft.Compute/virtualMachines', variables('N1VMName'))]",
+                "LabN1/ConfigureNode1"
             ],
             "properties": {
                 "virtualMachineResourceId": "[resourceId('Microsoft.Compute/virtualMachines', variables('N1VMName'))]",
