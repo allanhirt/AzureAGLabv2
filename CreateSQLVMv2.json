@@ -7,11 +7,16 @@
         }
     },
     "variables": {
-        "AD1VMName": "LabDC",
-        "AD1VMNICName": "LabDCNIC",
-        "AD1VMPublicIPAddressName": "LabDCPublicIP",
-        "ADVMList": "(variables('AD1VMName'))",
-        "ADListArray": "[split(variables('ADVMList'),',')]",
+        "ADDS": [
+            {
+                "ipconfig": "LabDCIPconfig",
+                "nicname": "LabDCNIC",
+                "servername": "LabDC",
+                "publicIpAddressName": "LabDCPublicIP",
+                "staticIpAddress": "10.0.6.25",
+                "zone": "1"
+            }
+        ],
         "ADVMSize": "Standard_DS2_v2",
         "AGVMSize": "Standard_D2s_v3",
         "AZRegion": "eastus2",
@@ -59,9 +64,9 @@
     },
     "resources": [
         {
-            "type": "Microsoft.Network/virtualNetworks",
-            "apiVersion": "2018-08-01",
             "name": "[variables('virtualNetworkName')]",
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2019-04-01",
             "location": "[variables('AZRegion')]",
             "properties": {
                 "addressSpace": {
@@ -85,9 +90,9 @@
             }
         },
         {
-            "type": "Microsoft.Network/networkSecurityGroups",
-            "apiVersion": "2018-08-01",
             "name": "[variables('networkSecurityGroupName')]",
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2019-04-01",
             "location": "[variables('AZRegion')]",
             "properties": {
                 "securityRules": [
@@ -108,34 +113,42 @@
             }
         },
         {
+            "name": "[variables('ADDS')[copyIndex()].publicIpAddressName]",
             "type": "Microsoft.Network/publicIpAddresses",
-            "apiVersion": "2018-08-01",
-            "name": "[variables('AD1VMPublicIPAddressName')]",
+            "apiVersion": "2019-04-01",
             "location": "[variables('AZRegion')]",
+            "copy": {
+                "name": "publicIPloop",
+                "count": "[length(variables('ADDS'))]"
+            },
             "sku": {
                 "name": "Standard"
             },
             "zones": [
-                "1"
+                "[variables('ADDS')[copyIndex()].zone]"
             ],
             "properties": {
                 "publicIpAllocationMethod": "Static"
             }
         },
         {
+            "name": "[variables('ADDS')[copyIndex()].nicname]",
             "type": "Microsoft.Network/networkInterfaces",
-            "apiVersion": "2018-10-01",
-            "name": "[variables('AD1VMNICName')]",
+            "apiVersion": "2019-04-01",
             "location": "[variables('AZRegion')]",
             "dependsOn": [
                 "[concat('Microsoft.Network/networkSecurityGroups/', variables('networkSecurityGroupName'))]",
                 "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
-                "[concat('Microsoft.Network/publicIpAddresses/', variables('AD1VMPublicIPAddressName'))]"
+                "[concat('Microsoft.Network/publicIpAddresses/', variables('ADDS')[copyIndex()].publicIpAddressName)]"
             ],
+            "copy": {
+                "name": "addsnicloop",
+                "count": "[length(variables('ADDS'))]"
+            },
             "properties": {
                 "ipConfigurations": [
                     {
-                        "name": "AD1VMIPConfig",
+                        "name": "[variables('ADDS')[copyIndex()].ipconfig]",
                         "properties": {
                             "subnet": {
                                 "id": "[variables('subnetRef')]"
@@ -143,7 +156,7 @@
                             "privateIPAddress": "10.0.6.25",
                             "privateIPAllocationMethod": "Static",
                             "publicIpAddress": {
-                                "id": "[resourceId(resourceGroup().name, 'Microsoft.Network/publicIpAddresses', variables('AD1VMPublicIPAddressName'))]"
+                                "id": "[resourceId(resourceGroup().name, 'Microsoft.Network/publicIpAddresses', variables('ADDS')[copyIndex()].publicIpAddressName)]"
                             }
                         }
                     }
@@ -154,10 +167,14 @@
             }
         },
         {
-            "type": "Microsoft.Network/publicIpAddresses",
-            "apiVersion": "2018-08-01",
             "name": "[variables('Nodes')[copyIndex()].publicIpAddressName]",
+            "type": "Microsoft.Network/publicIpAddresses",
+            "apiVersion": "2019-04-01",
             "location": "[variables('AZRegion')]",
+            "copy": {
+                "name": "publicIPloop",
+                "count": "[length(variables('Nodes'))]"
+            },
             "sku": {
                 "name": "Standard"
             },
@@ -166,15 +183,11 @@
             ],
             "properties": {
                 "publicIpAllocationMethod": "Static"
-            },
-            "copy": {
-                "name": "publicIPloop",
-                "count": "[length(variables('Nodes'))]"
             }
         },
         {
             "type": "Microsoft.Network/networkInterfaces",
-            "apiVersion": "2018-10-01",
+            "apiVersion": "2019-04-01",
             "name": "[variables('Nodes')[copyIndex()].nicname]",
             "location": "[variables('AZRegion')]",
             "dependsOn": [
@@ -182,6 +195,10 @@
                 "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
                 "[concat('Microsoft.Network/publicIpAddresses/', variables('Nodes')[copyIndex()].publicIpAddressName)]"
             ],
+            "copy": {
+                "name": "nodenicloop",
+                "count": "[length(variables('Nodes'))]"
+            },
             "properties": {
                 "ipConfigurations": [
                     {
@@ -201,23 +218,20 @@
                 "networkSecurityGroup": {
                     "id": "[variables('nsgId')]"
                 }
-            },
-            "copy": {
-                "name": "nodenicloop",
-                "count": "[length(variables('Nodes'))]"
             }
         },
         {
+            "name": "[variables('ADDS')[copyIndex()].servername]",
             "type": "Microsoft.Compute/virtualMachines",
-            "apiVersion": "2018-10-01",
-            "name": "[variables('AD1VMName')]",
+            "apiVersion": "2019-03-01",
             "location": "[variables('AZRegion')]",
             "dependsOn": [
-                "[concat('Microsoft.Network/networkInterfaces/', variables('AD1VMNICName'))]"
+                "[concat('Microsoft.Network/networkInterfaces/', variables('ADDS')[copyIndex()].nicname)]"
             ],
-            "zones": [
-                "1"
-            ],
+            "copy": {
+                "name": "addsserverloop",
+                "count": "[length(variables('ADDS'))]"
+            },
             "plan": {
                 "name": "ad-dc-2019",
                 "publisher": "cloud-infrastructure-services",
@@ -244,12 +258,12 @@
                 "networkProfile": {
                     "networkInterfaces": [
                         {
-                            "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('AD1VMNICName'))]"
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('ADDS')[copyIndex()].nicname)]"
                         }
                     ]
                 },
                 "osProfile": {
-                    "computerName": "[variables('AD1VMName')]",
+                    "computerName": "[variables('ADDS')[copyIndex()].servername]",
                     "adminUsername": "[variables('domainadminUsername')]",
                     "adminPassword": "[parameters('adminPassword')]",
                     "windowsConfiguration": {
@@ -257,15 +271,18 @@
                         "provisionVmAgent": true
                     }
                 }
-            }
+            },
+            "zones": [
+                "[variables('ADDS')[copyIndex()].zone]"
+            ]
         },
         {
-            "name": "variables('Nodes')[copyIndex('Nodes')].nodename",
+            "name": "[variables('Nodes')[copyIndex('nodeloop')].nodename]",
             "type": "Microsoft.Compute/virtualMachines",
-            "apiVersion": "2018-10-01",
+            "apiVersion": "2019-03-01",
             "location": "[variables('AZRegion')]",
             "dependsOn": [
-                "[concat('Microsoft.Network/networkInterfaces/', variables('Nodes')[copyIndex('Nodes')].nicname)]"
+                "[concat('Microsoft.Network/networkInterfaces/', variables('Nodes')[copyIndex('nodeloop')].nicname)]"
             ],
             "copy": {
                 "name": "nodeloop",
@@ -309,12 +326,12 @@
                 "networkProfile": {
                     "networkInterfaces": [
                         {
-                            "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('Nodes')[copyIndex('Nodes')].nicname)]"
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('Nodes')[copyIndex('nodeloop')].nicname)]"
                         }
                     ]
                 },
                 "osProfile": {
-                    "computerName": "[variables('Nodes')[copyIndex('Nodes')].nodename]",
+                    "computerName": "[variables('Nodes')[copyIndex('nodeloop')].nodename]",
                     "adminUsername": "[variables('localadminUsername')]",
                     "adminPassword": "[parameters('adminPassword')]",
                     "windowsConfiguration": {
@@ -329,8 +346,133 @@
                     }
                 }
             },
-                "zones": ["[variables('Nodes')[copyIndex('Nodes')].zone]"]
-        }
+            "zones": [
+                "[variables('Nodes')[copyIndex('nodeloop')].zone]"
+            ]
+        },
+        {
+            "type": "Microsoft.SqlVirtualMachine/SqlVirtualMachines",
+            "apiVersion": "2017-03-01-preview",
+            "name": "[variables('Nodes')[copyIndex('')].nodename]",
+            "location": "[variables('AZRegion')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', variables('Nodes')[copyIndex('')].nodename)]",
+                "nodeloop"
+            ],
+            "copy": {
+                "name": "sqlserverconfigloop",
+                "count": "[length(variables('Nodes'))]"
+            },
+            "properties": {
+                "virtualMachineResourceId": "[resourceId('Microsoft.Compute/virtualMachines', variables('Nodes')[copyIndex('')].nodename)]",
+                "sqlManagement": "Full",
+                "SqlServerLicenseType": "PAYG",
+                "AutoPatchingSettings": {
+                    "Enable": false
+                },
+                "KeyVaultCredentialSettings": {
+                    "Enable": false
+                },
+                "ServerConfigurationsManagementSettings": {
+                    "SQLConnectivityUpdateSettings": {
+                        "ConnectivityType": "PRIVATE",
+                        "Port": "1433",
+                        "SQLAuthUpdateUserName": "[variables('localadminUsername')]",
+                        "SQLAuthUpdatePassword": "[parameters('adminPassword')]"
+                    },
+                    "SQLWorkloadTypeUpdateSettings": {
+                        "SQLWorkloadType": "GENERAL"
+                    },
+                    "SQLStorageUpdateSettings": {
+                        "DiskCount": "1",
+                        "DiskConfigurationType": "NEW",
+                        "StartingDeviceID": "2"
+                    },
+                    "AdditionalFeaturesServerConfigurations": {
+                        "IsRServicesEnabled": false
+                    }
+                }
+            }
+        },
+        {
+            "name": "[concat(variables('ADDS')[copyIndex()].servername, '/', 'CreateNewForest')]",
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "apiVersion": "2019-07-01",
+            "location": "[variables('AZRegion')]",
+            "condition": "[equals(variables('ADDS')[copyIndex()].servername,'LabDC')]",
+            "dependsOn": [
+                    "[resourceId('Microsoft.Compute/virtualMachines', variables('ADDS')[copyIndex()].servername)]"
+            ],
+            "copy": {
+                "name": "addsconfigloop",
+                "count": "[length(variables('ADDS'))]"
+            },
+            "properties": {
+                "publisher": "Microsoft.Powershell",
+                "type": "DSC",
+                "typeHandlerVersion": "2.78",
+                "autoUpgradeMinorVersion": true,
+                "settings": {
+                    "configuration": {
+                        "url": "https://sqlhauclassstuff.blob.core.windows.net/sqlhaulabstuff/CreateADForest_0918.zip",
+                        "script": "CreateADForest_0918.ps1",
+                        "function": "LabDC"
+                    },
+                    "configurationArguments": {
+                        "FQDN": "[variables('domainName')]"
+                    }
+                },
+                "protectedSettings": {
+                    "configurationArguments": {
+                        "domainAdminCreds": {
+                            "userName": "[variables('domainadminUsername')]",
+                            "password": "[parameters('adminPassword')]"
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "name": "[concat(variables('Nodes')[copyIndex()].servername, '/', 'ConfigureNode1')]",
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "apiVersion": "2019-07-01",
+            "location": "[variables('AZRegion')]",
+            "condition": "[equals(variables('Nodes')[copyIndex()].servername,'LabN1')]",
+            "dependsOn": [
+                    "[resourceId('Microsoft.Compute/virtualMachines', variables('Nodes')[copyIndex()].servername)]",
+                    "addsconfigloop",
+                    "sqlserverconfigloop"
+            ],
+            "copy": {
+                "name": "nodeconfigloop",
+                "count": "[length(variables('Nodes'))]"
+            },
+            "properties": {
+                "publisher": "Microsoft.Powershell",
+                "type": "DSC",
+                "typeHandlerVersion": "2.78",
+                "autoUpgradeMinorVersion": true,
+                "settings": {
+                    "configuration": {
+                        "url": "https://sqlhauclassstuff.blob.core.windows.net/sqlhaulabstuff/ConfigureNodes_0918_0918.zip",
+                        "script": "ConfigureNodes_0918.ps1",
+                        "function": "Node1ConfigWin"
+                    },
+                    "configurationArguments": {
+                        "FQDN": "[variables('domainName')]"
+                    }
+                },
+                "protectedSettings": {
+                    "configurationArguments": {
+                        "domainAdminCreds": {
+                            "userName": "[variables('domainadminUsername')]",
+                            "password": "[parameters('adminPassword')]"
+                        }
+                    }
+                }
+            }
+        }    
+
     ],
     "outputs": {
         "adminUsername": {
