@@ -414,8 +414,8 @@
                 "autoUpgradeMinorVersion": true,
                 "settings": {
                     "configuration": {
-                        "url": "https://sqlhauclassstuff.blob.core.windows.net/sqlhaulabstuff/CreateADForest_0918.zip",
-                        "script": "CreateADForest_0918.ps1",
+                        "url": "https://sqlhauclassstuff.blob.core.windows.net/sqlhaulabstuff/CreateADForest_0919.zip",
+                        "script": "CreateADForest_0919.ps1",
                         "function": "LabDC"
                     },
                     "configurationArguments": {
@@ -433,18 +433,17 @@
             }
         },
         {
-            "name": "[concat(variables('Nodes')[copyIndex()].nodename, '/', 'ConfigureNode1')]",
+            "name": "[concat(variables('Nodes')[copyIndex()].nodename, '/', 'ConfigureNodesPt1')]",
             "type": "Microsoft.Compute/virtualMachines/extensions",
             "apiVersion": "2019-07-01",
             "location": "[variables('AZRegion')]",
-            "condition": "[equals(variables('Nodes')[copyIndex()].nodename,'LabN1')]",
             "dependsOn": [
                     "[resourceId('Microsoft.Compute/virtualMachines', variables('Nodes')[copyIndex()].nodename)]",
                     "addsconfigloop",
                     "sqlserverconfigloop"
             ],
             "copy": {
-                "name": "nodeconfigloop",
+                "name": "nodeconfigpt1loop",
                 "count": "[length(variables('Nodes'))]"
             },
             "properties": {
@@ -454,9 +453,9 @@
                 "autoUpgradeMinorVersion": true,
                 "settings": {
                     "configuration": {
-                        "url": "https://sqlhauclassstuff.blob.core.windows.net/sqlhaulabstuff/ConfigureNodes_0918.zip",
-                        "script": "ConfigureNodes_0918.ps1",
-                        "function": "Node1ConfigWin"
+                        "url": "https://sqlhauclassstuff.blob.core.windows.net/sqlhaulabstuff/ConfigureNodes_0919.zip",
+                        "script": "ConfigureNodesCommon.ps1",
+                        "function": "BaseWinConfig"
                     },
                     "configurationArguments": {
                         "FQDN": "[variables('domainName')]"
@@ -471,7 +470,68 @@
                     }
                 }
             }
-        }    
+        },    
+        {
+            "name": "[concat(variables('Nodes')[copyIndex()].nodename, '/', 'ConfigureNodesPt2')]",
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "apiVersion": "2019-03-01",
+            "location": "[variables('AZRegion')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', variables('Nodes')[copyIndex()].nodename))]",
+                "nodeconfigpt1loop"
+            ],
+            "copy": {
+                "name": "nodeconfigpt2loop",
+                "count": "[length(variables('Nodes'))]"
+            },
+            "properties": {
+                "publisher": "Microsoft.Compute",
+                "type": "CustomScriptExtension",
+                "typeHandlerVersion": "1.9",
+                "autoUpgradeMinorVersion":true,
+                "settings": {
+                    "fileUris": [
+                        "https://sqlhauclassstuff.blob.core.windows.net/sqlhaulabstuff/CreateADObjects.ps1"
+                    ]
+                },
+                "protectedSettings": {
+                    "commandToExecute": "powershell.exe -ExecutionPolicy Unrestricted -File CreateADObjects.ps1",
+                    "storageAccountName": "sqlhauclassstuff",
+                    "storageAccountKey": "FmKLikif8/YdpbZyyb/O+o/P1hRNBB769fmEG4V0zMR4hxNuXcRO999d6Z0TqeuuaLBBbol3AGipEE0gdxlT6Q=="
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "name": "[concat(variables('Nodes')[copyIndex()].nodename, '/', 'ConfigureNodesPt2')]",
+            "apiVersion": "2019-03-01",
+            "location": "[variables('AZRegion')]",
+            "condition": "[equals(variables('Nodes')[copyIndex()].nodename,'LabN1')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', variables('Nodes')[copyIndex()].nodename))]",
+                ""
+            ],
+            "copy": {
+                "name": "nodeconfigpt2loop",
+                "count": "[length(variables('Nodes'))]"
+            },
+            "properties": {
+                "publisher": "Microsoft.Compute",
+                "type": "CustomScriptExtension",
+                "typeHandlerVersion": "1.9",
+                "autoUpgradeMinorVersion":true,
+                "settings": {
+                    "fileUris": [
+                        "https://sqlhauclassstuff.blob.core.windows.net/sqlhaulabstuff/CreateADObjects.ps1"
+                    ]
+                },
+                "protectedSettings": {
+                    "commandToExecute": "powershell.exe -ExecutionPolicy Unrestricted -File CreateADObjects.ps1",
+                    "storageAccountName": "sqlhauclassstuff",
+                    "storageAccountKey": "FmKLikif8/YdpbZyyb/O+o/P1hRNBB769fmEG4V0zMR4hxNuXcRO999d6Z0TqeuuaLBBbol3AGipEE0gdxlT6Q=="
+                }
+            }
+        }
     ],
     "outputs": {
         "adminUsername": {
